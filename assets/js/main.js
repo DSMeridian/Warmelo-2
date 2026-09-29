@@ -106,6 +106,60 @@ window.addEventListener('scroll', syncNav, { passive: true });
 syncNav();
 
 
+/* ── ACTIVE NAV ITEM (click + scroll-spy) ──────────────────────── */
+const spyLinks = [...document.querySelectorAll('.nav__links a, .nav__cta, .nav__overlay .mlink')]
+  .filter(a => a.hash.length > 1);
+// Every section a link points to, plus #bezoek so that area clears the highlight
+const spyIds = [...new Set([...spyLinks.map(a => a.hash.slice(1)), 'bezoek'])];
+const spySections = spyIds.map(id => document.getElementById(id)).filter(Boolean)
+  .sort((x, y) => x.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+
+const setActive = id => {
+  spyLinks.forEach(a => {
+    const on = a.hash === '#' + id;
+    a.classList.toggle('is-active', on);
+    on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
+  });
+};
+
+const currentSection = () => {
+  const line = window.innerHeight * 0.35;
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+  if (atBottom && spySections.length) return spySections[spySections.length - 1].id;
+  let current = null;
+  spySections.forEach(sec => { if (sec.getBoundingClientRect().top <= line) current = sec.id; });
+  return current;
+};
+
+// While a click-triggered smooth scroll is running, keep the clicked item
+// active instead of flickering through the sections in between.
+let spyLock = null, spyLockTimer = 0, spyRaf = false;
+const releaseLock = () => { spyLock = null; setActive(currentSection()); };
+
+window.addEventListener('scroll', () => {
+  if (spyLock) {
+    clearTimeout(spyLockTimer);
+    spyLockTimer = setTimeout(releaseLock, 150);
+    return;
+  }
+  if (!spyRaf) {
+    spyRaf = true;
+    requestAnimationFrame(() => { setActive(currentSection()); spyRaf = false; });
+  }
+}, { passive: true });
+
+spyLinks.forEach(a => a.addEventListener('click', () => {
+  const id = a.hash.slice(1);
+  spyLock = id;
+  setActive(id);
+  clearTimeout(spyLockTimer);
+  spyLockTimer = setTimeout(releaseLock, 1200); // fallback if no scroll happens
+}));
+
+window.addEventListener('load', () => setActive(currentSection()));
+setActive(currentSection());
+
+
 /* ── MOBILE MENU ───────────────────────────────────────────────── */
 const ham     = document.getElementById('ham');
 const overlay = document.getElementById('overlay');

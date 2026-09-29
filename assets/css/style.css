@@ -328,8 +328,10 @@ h1, h2, h3, h4 {
   transform: scaleX(0); transform-origin: left;
   transition: transform var(--ease);
 }
-.nav__links a:hover { color: var(--white); }
-.nav__links a:hover::after { transform: scaleX(1); }
+.nav__links a:hover,
+.nav__links a.is-active { color: var(--white); }
+.nav__links a:hover::after,
+.nav__links a.is-active::after { transform: scaleX(1); }
 
 .nav__cta {
   font-size: 9px; font-weight: 500;
@@ -339,7 +341,8 @@ h1, h2, h3, h4 {
   color: var(--white);
   transition: background var(--ease), border-color var(--ease), box-shadow .25s;
 }
-.nav__cta:hover {
+.nav__cta:hover,
+.nav__cta.is-active {
   background: var(--gold); border-color: var(--gold);
   box-shadow: 0 4px 20px rgba(191,140,42,.35);
 }
@@ -363,7 +366,8 @@ h1, h2, h3, h4 {
   font-style: italic; color: rgba(255,255,255,.78);
   transition: color var(--ease);
 }
-.nav__overlay a:hover { color: var(--gold-bright); }
+.nav__overlay a:hover,
+.nav__overlay a.is-active { color: var(--gold-bright); }
 .nav__close {
   position: absolute; top: 28px; right: 32px;
   font-family: var(--ff-display); font-size: 28px;
